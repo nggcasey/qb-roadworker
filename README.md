@@ -1,6 +1,6 @@
 # qb-roadworker
  
-Work in Progress - Not yet functional.
+Work in Progress - Not yet functional, don't get excited yet people.
 
 Completed:
 
