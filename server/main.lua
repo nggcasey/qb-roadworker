@@ -1,0 +1,1 @@
+local CurrentDebrisArea = math.random(1, #Config.DebrisLocations)

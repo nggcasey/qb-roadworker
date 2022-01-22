@@ -1,13 +1,14 @@
-
 -- Variables
-
 local QBCore = exports['qb-core']:GetCoreObject()
+local CurrentDebrisLocation = {
+    Area = 0,
+    Blip = {
+        Radius = nil,
+        Label = nil
+    }
+}
 
 --Functions
-
-local function GetDebrisLocation()
-currentJob = math.random(1, #Config.DebrisLocations)
-end
 
 local function DrawText3D(x, y, z, text)
 	SetTextScale(0.35, 0.35)
