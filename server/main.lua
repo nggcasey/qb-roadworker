@@ -1,8 +1,8 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
-local CurrentDebrisArea = math.random(1, #Config.DebrisLocations)
---print('Debug: qb-roadworker: CurrentDebrisArea: '..CurrentDebrisArea)
+local CurrentRoadWorkArea = math.random(1, #Config.RoadWorkLocations)
+--print('Debug: qb-roadworker: CurrentRoadWorkArea: '..CurrentRoadWorkArea)
 
-QBCore.Functions.CreateCallback('qb-roadworker:server:GetDebrisConfig', function(source, cb)
-    cb(Config.DebrisLocations, CurrentDebrisArea)
+QBCore.Functions.CreateCallback('qb-roadworker:server:GetRoadWorkConfig', function(source, cb)
+    cb(Config.RoadWorkLocations, CurrentRoadWorkArea)
 end)

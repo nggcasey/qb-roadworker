@@ -14,12 +14,12 @@ Config.Locations = {
     ["vehicle"] = vector4(387.45, -1621.26, 29.29, 320.27)
 }
 
-Config.DebrisLocations = {
+Config.RoadWorkLocations = {
     [1] = {
         label = "This is Location 1",
         coords = {
             Area = vector3(736.64, -1213.53, 44.84),
-            Debris = {
+            RoadWork = {
                 [1] = {
                     coords = vector3(750.63, -1212.7, 44.97),
                     PickedUp = false
@@ -38,14 +38,14 @@ Config.DebrisLocations = {
                 },
             }
         },
-        DefaultDebris = 4,
-        TotalDebris = 4,
+        DefaultRoadWork = 4,
+        TotalRoadWork = 4,
     },
     [2] = {
         label = "LS Freeway North of Pumping Station",
         coords = {
             Area = vector3(1583.52, 1004.18, 78.96),
-            Debris = {
+            RoadWork = {
                 [1] = {
                     coords = vector3(1602.08, 1027.47, 79.68),
                     PickedUp = false
@@ -64,14 +64,14 @@ Config.DebrisLocations = {
                 },
             }
         },
-        DefaultDebris = 4,
-        TotalDebris = 4,
+        DefaultRoadWork = 4,
+        TotalRoadWork = 4,
     },
     [3] = {
         label = "This is Location 3",
         coords = {
             Area = vector3(1039.95, -939.36, 30.31),
-            Debris = {
+            RoadWork = {
                 [1] = {
                     coords = vector3(1024.07, -902.21, 30.45),
                     PickedUp = false
@@ -90,8 +90,8 @@ Config.DebrisLocations = {
                 },
             }
         },
-        DefaultDebris = 4,
-        TotalDebris = 4,
+        DefaultRoadWork = 4,
+        TotalRoadWork = 4,
     },
 }
 

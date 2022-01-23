@@ -1,6 +1,6 @@
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
-local CurrentDebrisLocation = {
+local CurrentRoadWorkLocation = {
     Area = 0,
     Blip = {
         Radius = nil,
@@ -81,25 +81,25 @@ AddEventHandler('onResourceStart', function(resourceName)
     end
     print('The resource ' .. resourceName .. ' has been started.')
 
-    QBCore.Functions.TriggerCallback('qb-roadworker:server:GetDebrisConfig', function(Config, Area)
-        TriggerEvent('qb-roadworker:client:SetDebrisLocation', Area)
+    QBCore.Functions.TriggerCallback('qb-roadworker:server:GetRoadWorkConfig', function(Config, Area)
+        TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
     end)
 
   end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    QBCore.Functions.TriggerCallback('qb-roadworker:server:GetDebrisConfig', function(Config, Area)
-        TriggerEvent('qb-roadworker:client:SetDebrisLocation', Area)
+    QBCore.Functions.TriggerCallback('qb-roadworker:server:GetRoadWorkConfig', function(Config, Area)
+        TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
     end)
 end)
 
 
-RegisterNetEvent('qb-roadworker:client:SetDebrisLocation', function(DebrisLocation)
+RegisterNetEvent('qb-roadworker:client:SetRoadWorkLocation', function(RoadWorkLocation)
 
-    CurrentDebrisLocation.Area = DebrisLocation
+    CurrentRoadWorkLocation.Area = RoadWorkLocation
 
-    blipRadius = AddBlipForRadius(Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.x, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.y, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.z, 75.0)
-    blipLabel = AddBlipForCoord(Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.x, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.y, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.z)
+    blipRadius = AddBlipForRadius(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z, 75.0)
+    blipLabel = AddBlipForCoord(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z)
     -- blipText = 'Road Hazard Area'
 
     SetBlipSprite(blipLabel, 650)
@@ -117,7 +117,7 @@ RegisterNetEvent('qb-roadworker:client:SetDebrisLocation', function(DebrisLocati
 
 
 
-    -- RadiusBlip = AddBlipForRadius(Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.x, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.y, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.z, 100.0)
+    -- RadiusBlip = AddBlipForRadius(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z, 100.0)
     -- --print('RadiusBlip: '..RadiusBlip)
 
     -- SetBlipRotation(RadiusBlip, 0)
@@ -125,7 +125,7 @@ RegisterNetEvent('qb-roadworker:client:SetDebrisLocation', function(DebrisLocati
     -- SetBlipAlpha(RadiusBlip, 125)
 
     
-    -- BeginTextCommandSetBlipName("DEBRIS")
+    -- BeginTextCommandSetBlipName("RoadWork")
     -- EndTextCommandSetBlipName(RadiusBlip)
     -- SetBlipCategory(RadiusBlip, 1)
 
