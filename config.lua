@@ -100,20 +100,15 @@ Config.Vehicles = {
     ["adder"] = "Managers Adder"
 }
 
-Config.WorkTypes = {
+Config.Rewards = {
     [1] = {
-        name = 'pothole',
-        pay = math.random(70, 100),
-        rewards = {
-            [1] = {
-                ["item"] = "rubber",
-                ["amount"] = math.random(1,2)
-            },
-
-            [2] = {
-                ["item"] = "iron",
-                ["amount"] = math.random(1,2)
-            }
-        }
+        item = 'iron',
+        maxAmount = math.random(1, 5),
+        price = math.random(70, 100)
+    },
+    [2] = {
+        item = 'copper',
+        maxAmount = math.random(2, 7),
+        price = math.random(50, 70)
     }
 }

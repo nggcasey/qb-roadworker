@@ -99,14 +99,14 @@ AddEventHandler('onResourceStart', function(resourceName)
     print('The resource ' .. resourceName .. ' has been started.')
 
     QBCore.Functions.TriggerCallback('qb-roadworker:server:GetRoadWorkConfig', function(Config, Area)
-        TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
+    TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
     end)
 
     AddJobBlip()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    QBCore.Functions.TriggerCallback('qb-roadworker:server:GetRoadWorkConfig', function(Config, Area)
+        QBCore.Functions.TriggerCallback('qb-roadworker:server:GetRoadWorkConfig', function(Config, Area)
         TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
     end)
 
@@ -119,25 +119,46 @@ RegisterNetEvent('qb-roadworker:client:SetRoadWorkLocation', function(RoadWorkLo
 
     CurrentRoadWorkLocation.Area = RoadWorkLocation
 
-    blipRadius = AddBlipForRadius(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z, 75.0)
-    blipLabel = AddBlipForCoord(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z)
-    -- blipText = 'Road Hazard Area'
+    -- for _,Blip in pairs(CurrentRoadWorkLocation.Blip) do
+    --     if Blip ~= nil then
+    --         RemoveBlip(Blip)
+    --     end
+    -- end
 
-    SetBlipSprite(blipLabel, 650)
-    SetBlipColour(blipLabel, 5)
-    SetBlipDisplay(blipLabel, 4)
-    SetBlipScale(blipLabel, 0.7)
+    RemoveBlip(blipRadius)
+    RemoveBlip(blipLabel)
 
-    BeginTextCommandSetBlipName('STRING')
-    AddTextComponentString(Config.BlipLabel)
-    EndTextCommandSetBlipName(blipLabel)
+    CreateThread(function()
+        blipRadius = AddBlipForRadius(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z, 75.0)
+        blipLabel = AddBlipForCoord(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z)
 
-    SetBlipRotation(blipRadius, 0)
-    SetBlipColour(blipRadius, 47)
-    SetBlipAlpha(blipRadius, 125)
+        SetBlipSprite(blipLabel, 650)
+        SetBlipColour(blipLabel, 5)
+        SetBlipDisplay(blipLabel, 4)
+        SetBlipScale(blipLabel, 0.7)
 
+        BeginTextCommandSetBlipName('STRING')
+        AddTextComponentString(Config.BlipLabel)
+        EndTextCommandSetBlipName(blipLabel)
+
+        SetBlipRotation(blipRadius, 0)
+        SetBlipColour(blipRadius, 47)
+        SetBlipAlpha(blipRadius, 125)
+
+        CurrentRoadWorkLocation.Blip.Label = blipLabel
+    end)
 end)
 
+RegisterNetEvent('qb-roadworker:client:NewLocations', function()
+        QBCore.Functions.TriggerCallback('qb-roadworker:server:GetRoadWorkConfig', function(Config, Area)
+            Config.RoadWorkLocations = Config
+            TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
+        end)
+end)
+
+RegisterNetEvent('qb-roadworker:server:UpdateWork', function(Area, Work, Bool)
+    Config.RoadWorkLocations[Area].coords.Work[Work].Completed = Bool
+end)
 
 RegisterNetEvent("qb-roadworker:client:SpawnVehicle",function(data)
     local vehicleSpawnName=data.spawnName
@@ -170,7 +191,7 @@ CreateThread(function()
                         if WorkDistance <= 75 then
                             if not WorkLocation.Completed then
                                 DrawMarker(32, WorkLocation.coords.x, WorkLocation.coords.y, WorkLocation.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.4, 1.0, 0.4, 255, 223, 0, 255, true, false, false, false, false, false, false )
-                                if WorkDistance <= 10 then
+                                if WorkDistance <= 1.5 then
                                     --print(WorkDistance)
                                     DrawText3D(WorkLocation.coords.x, WorkLocation.coords.y, WorkLocation.coords.z, '[E] Start Roadwork')
                                     if IsControlJustReleased(0, 38) then
