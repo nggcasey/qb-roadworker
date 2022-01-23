@@ -75,6 +75,65 @@ local function SpawnListVehicle(model)
 end
 
 --Events
+AddEventHandler('onResourceStart', function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then
+      return
+    end
+    print('The resource ' .. resourceName .. ' has been started.')
+
+    QBCore.Functions.TriggerCallback('qb-roadworker:server:GetDebrisConfig', function(Config, Area)
+        TriggerEvent('qb-roadworker:client:SetDebrisLocation', Area)
+    end)
+
+  end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    QBCore.Functions.TriggerCallback('qb-roadworker:server:GetDebrisConfig', function(Config, Area)
+        TriggerEvent('qb-roadworker:client:SetDebrisLocation', Area)
+    end)
+end)
+
+
+RegisterNetEvent('qb-roadworker:client:SetDebrisLocation', function(DebrisLocation)
+
+    CurrentDebrisLocation.Area = DebrisLocation
+
+    blipRadius = AddBlipForRadius(Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.x, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.y, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.z, 75.0)
+    blipLabel = AddBlipForCoord(Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.x, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.y, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.z)
+    -- blipText = 'Road Hazard Area'
+
+    SetBlipSprite(blipLabel, 650)
+    SetBlipColour(blipLabel, 5)
+    SetBlipDisplay(blipLabel, 4)
+    SetBlipScale(blipLabel, 0.7)
+
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentString(Config.BlipLabel)
+    EndTextCommandSetBlipName(blipLabel)
+
+    SetBlipRotation(blipRadius, 0)
+    SetBlipColour(blipRadius, 47)
+    SetBlipAlpha(blipRadius, 125)
+
+
+
+    -- RadiusBlip = AddBlipForRadius(Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.x, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.y, Config.DebrisLocations[CurrentDebrisLocation.Area].coords.Area.z, 100.0)
+    -- --print('RadiusBlip: '..RadiusBlip)
+
+    -- SetBlipRotation(RadiusBlip, 0)
+    -- SetBlipColour(RadiusBlip, 47)
+    -- SetBlipAlpha(RadiusBlip, 125)
+
+    
+    -- BeginTextCommandSetBlipName("DEBRIS")
+    -- EndTextCommandSetBlipName(RadiusBlip)
+    -- SetBlipCategory(RadiusBlip, 1)
+
+
+
+
+end)
+
 
 RegisterNetEvent("qb-roadworker:client:SpawnVehicle",function(data)
     local vehicleSpawnName=data.spawnName
@@ -82,17 +141,6 @@ RegisterNetEvent("qb-roadworker:client:SpawnVehicle",function(data)
 end)
 
 --Threads
-CreateThread(function() -- Map Blip
-    RoadworkerBlip = AddBlipForCoord(Config.Locations["blip"])
-    SetBlipSprite (RoadworkerBlip, 67)
-    SetBlipDisplay(RoadworkerBlip, 4)
-    SetBlipScale  (RoadworkerBlip, 0.6)
-    SetBlipAsShortRange(RoadworkerBlip, true)
-    SetBlipColour(RoadworkerBlip, 2)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Config.joblabel)
-    EndTextCommandSetBlipName(RoadworkerBlip)
-end)
 
 CreateThread(function() --Job Garage
     while true do
