@@ -25,6 +25,18 @@ local function DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
+local function AddJobBlip()
+    local jobBlip = AddBlipForCoord(Config.Locations["blip"])
+    SetBlipSprite(jobBlip, 487)
+    SetBlipColour(jobBlip, 2)
+    SetBlipDisplay(jobBlip, 4)
+    SetBlipScale(jobBlip, 1.0)
+
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentString(Config.JobLabel..' HQ')
+    EndTextCommandSetBlipName(jobBlip)
+end
+
 local function RoadWorkerGarage()
     local vehicleMenu = {
         {
@@ -74,6 +86,11 @@ local function SpawnListVehicle(model)
     end, coords, true)
 end
 
+local function CompleteWork(work)
+    Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Work[work].Completed = true
+    TriggerServerEvent('qb-roadworker:server:CompleteWork', CurrentRoadWorkLocation.Area, work, true)
+end
+
 --Events
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
@@ -85,12 +102,16 @@ AddEventHandler('onResourceStart', function(resourceName)
         TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
     end)
 
-  end)
+    AddJobBlip()
+end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.TriggerCallback('qb-roadworker:server:GetRoadWorkConfig', function(Config, Area)
         TriggerEvent('qb-roadworker:client:SetRoadWorkLocation', Area)
     end)
+
+    AddJobBlip()
+
 end)
 
 
@@ -115,23 +136,6 @@ RegisterNetEvent('qb-roadworker:client:SetRoadWorkLocation', function(RoadWorkLo
     SetBlipColour(blipRadius, 47)
     SetBlipAlpha(blipRadius, 125)
 
-
-
-    -- RadiusBlip = AddBlipForRadius(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z, 100.0)
-    -- --print('RadiusBlip: '..RadiusBlip)
-
-    -- SetBlipRotation(RadiusBlip, 0)
-    -- SetBlipColour(RadiusBlip, 47)
-    -- SetBlipAlpha(RadiusBlip, 125)
-
-    
-    -- BeginTextCommandSetBlipName("RoadWork")
-    -- EndTextCommandSetBlipName(RadiusBlip)
-    -- SetBlipCategory(RadiusBlip, 1)
-
-
-
-
 end)
 
 
@@ -142,6 +146,78 @@ end)
 
 --Threads
 
+CreateThread(function()
+    while true do
+        local inRange = false
+        local ped = PlayerPedId()
+        local pos = GetEntityCoords(ped)
+
+        if CurrentRoadWorkLocation.Area ~=0 then
+            local AreaDistance = #(pos - vector3(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.x, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.y, Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Area.z))
+            local WorkDistance = nil
+
+            if AreaDistance < 75 then
+                inRange = true
+            end
+
+            if inRange then
+                --print('in range')
+                for cur, WorkLocation in pairs(Config.RoadWorkLocations[CurrentRoadWorkLocation.Area].coords.Work) do
+                    --print(WorkLocation.coords.x)
+                    WorkDistance = #(pos - vector3(WorkLocation.coords.x, WorkLocation.coords.y, WorkLocation.coords.z))
+                    --print(WorkDistance)
+                    if WorkDistance ~= nil then
+                        if WorkDistance <= 75 then
+                            if not WorkLocation.Completed then
+                                DrawMarker(32, WorkLocation.coords.x, WorkLocation.coords.y, WorkLocation.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.4, 1.0, 0.4, 255, 223, 0, 255, true, false, false, false, false, false, false )
+                                if WorkDistance <= 10 then
+                                    --print(WorkDistance)
+                                    DrawText3D(WorkLocation.coords.x, WorkLocation.coords.y, WorkLocation.coords.z, '[E] Start Roadwork')
+                                    if IsControlJustReleased(0, 38) then
+                                        local DrillObject = CreateObject(1360563376, pos.x, pos.y, pos.z, true, true, true)
+                                        AttachEntityToEntity(DrillObject, ped, GetPedBoneIndex(ped), 57005, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
+                                        --IsDrilling = true
+                                        --local times = math.random(2, 5)
+                                        QBCore.Functions.Progressbar("complete_work", "Completing Roadwork", 15000, false, true, {
+                                            disableMovement = true,
+                                            disableCarMovement = true,
+                                            disableMouse = false,
+                                            disableCombat = true,
+                                        }, {
+                                            --animDict = "weapons@first_person@aim_rng@generic@projectile@thermal_charge@",
+                                            animDict = "amb@world_human_const_drill@male@drill@base",
+                                            anim = "base",
+                                            --anim = "plant_floor",
+                                            flags = 1,
+                                        }, {}, {}, function() --Done
+                                            CompleteWork(cur)
+                                            StopAnimTask(PlayerPedId(),"amb@world_human_const_drill@male@drill@base", "base", 1.0 )
+                                            DetachEntity(DrillObject, true, true)
+                                            DeleteObject(DrillObject)
+                                            FreezeEntityPosition(ped, false)
+                                        end, function() --Cancel
+                                            ClearPedTasks(ped)
+                                            StopAnimTask(PlayerPedId(),"amb@world_human_const_drill@male@drill@base", "base", 1.0 )
+                                            DetachEntity(DrillObject, true, true)
+                                            DeleteObject(DrillObject)
+                                            FreezeEntityPosition(ped, false)
+                                        end)
+                                    
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if not inRange then
+                Wait(2500)
+            end
+        end
+            Wait(3)
+    end
+end)
+
 CreateThread(function() --Job Garage
     while true do
         inRange = false
@@ -151,7 +227,7 @@ CreateThread(function() --Job Garage
         local dist = #(pos - vector3(Config.Locations["vehicle"].x, Config.Locations["vehicle"].y, Config.Locations["vehicle"].z))
         if dist < 20 then
             inRange = true
-            DrawText3D(Config.Locations["vehicle"].x, Config.Locations["vehicle"].y, Config.Locations["vehicle"].z, "[E] "..Config.joblabel.. " Garage")
+            DrawText3D(Config.Locations["vehicle"].x, Config.Locations["vehicle"].y, Config.Locations["vehicle"].z, "[E] "..Config.JobLabel.. " Garage")
         
             if dist < 1.5 then
                 if IsControlJustReleased(0,38) then
